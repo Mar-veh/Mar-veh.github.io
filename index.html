@@ -35,6 +35,119 @@
     "knowsAbout": ["Remote sensing", "GIS", "Land cover mapping", "Google Earth Engine", "Machine learning", "EUDR"]
   }
   </script>
+  <style>
+  /* ── Mangrove image tile (gallery) ── */
+  .mc-tile {
+    grid-column: span 2;
+    aspect-ratio: 2.72 / 1;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .mc-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+  .mc-tile:hover img { transform: scale(1.05); }
+  .mc-tile span {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 14px 12px;
+    font-size: .92rem; font-weight: 600; color: #fff;
+    background: linear-gradient(to top, rgba(0,0,0,.55) 0%, transparent 100%);
+  }
+  .mc-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 12px; }
+  @media (max-width: 860px) { .mc-tile { aspect-ratio: 16 / 7; } }
+  @media (max-width: 560px) { .mc-tile { grid-column: auto; aspect-ratio: 4 / 3; } }
+
+  /* ── Mangrove dialog ── */
+  .mg-dialog {
+    border: 0; padding: 0; border-radius: 14px; overflow: hidden;
+    max-width: min(1100px, 94vw); max-height: 90vh; width: 100%;
+    background: var(--surface);
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  }
+  .mg-dialog:not([open]) { display: none; }
+  .mg-dialog[open] { display: flex; flex-direction: column; }
+  .mg-dialog::backdrop { background: rgba(8,12,10,.86); }
+  .mg-dhead {
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 13px 18px; flex-shrink: 0;
+  }
+  .mg-dtitle {
+    font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--accent-ink); margin: 0;
+  }
+  .mg-dsub { font-size: .72rem; color: rgba(255,255,255,.62); margin-top: 2px; }
+  .mg-dclose {
+    background: rgba(0,0,0,.12); border: 1px solid rgba(0,0,0,.15); color: var(--accent-ink);
+    border-radius: 8px; padding: 5px 9px; cursor: pointer; display: grid; place-items: center; flex-shrink: 0;
+    line-height: 0;
+  }
+  .mg-dclose:hover { background: rgba(0,0,0,.22); }
+  .mg-tabs {
+    background: var(--surface-alt); display: flex; gap: 0; padding: 0 18px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+  }
+  .mg-tabs::-webkit-scrollbar { display: none; }
+  .mg-tab {
+    padding: .55rem .95rem; background: transparent; border: none;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    color: var(--muted); font-size: .78rem; font-family: var(--font-body); font-weight: 500; cursor: pointer;
+    white-space: nowrap; transition: color .12s, border-color .12s;
+  }
+  .mg-tab:hover { color: var(--ink); }
+  .mg-tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .mg-tab-sep { margin-left: auto; border-left: 1px solid var(--line); padding-left: 1rem; }
+  .mg-body { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+  .mg-panel { display: none; }
+  .mg-panel.active { display: block; }
+  .mg-map-wrap {
+    background: var(--surface-alt); line-height: 0;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .mg-map-wrap img { max-width: 100%; max-height: 60vh; width: auto; height: auto; display: block; }
+  .mg-mcap { padding: 9px 18px; font-size: .77rem; color: var(--muted); font-style: italic; border-bottom: 1px solid var(--line); }
+  .mg-findings { padding: 18px; }
+  .mg-kpi-grid {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: .55rem; margin-bottom: 1rem;
+  }
+  @media (max-width: 600px) { .mg-kpi-grid { grid-template-columns: repeat(2,1fr); } }
+  .mg-kpi {
+    background: var(--surface-alt); border: 1px solid var(--line); border-radius: 10px; padding: .8rem .95rem;
+  }
+  .mg-kpi-label { font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .3rem; }
+  .mg-kpi-val   { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; margin-bottom: .18rem; }
+  .mg-kpi-sub   { font-size: .7rem; color: var(--muted); line-height: 1.4; }
+  .mg-cols { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-bottom: .9rem; }
+  @media (max-width: 600px) { .mg-cols { grid-template-columns: 1fr; } }
+  .mg-card {
+    background: var(--surface-alt); border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem;
+  }
+  .mg-card h3 { font-family: var(--font-display); font-size: .88rem; font-weight: 600; margin: 0 0 .65rem; }
+  .mg-table { width: 100%; border-collapse: collapse; font-size: .79rem; }
+  .mg-table th {
+    text-align: left; color: var(--muted); font-size: .66rem; text-transform: uppercase;
+    letter-spacing: .06em; padding: .2rem .4rem; border-bottom: 1px solid var(--line); font-weight: 600;
+  }
+  .mg-table td { padding: .36rem .4rem; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .mg-table tr:last-child td { border-bottom: none; }
+  .mg-spots { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+  .mg-spot { display: flex; align-items: flex-start; gap: .55rem; font-size: .79rem; min-width: 0; }
+  .mg-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: .32rem; }
+  .mg-sname { font-weight: 600; display: block; }
+  .mg-sdesc { color: var(--muted); font-size: .72rem; display: block; line-height: 1.4; }
+  .mg-takeaway {
+    border-left: 3px solid var(--accent); padding: .62rem .9rem;
+    background: var(--surface-alt); border-radius: 0 8px 8px 0;
+    font-size: .82rem; color: var(--muted); font-style: italic; line-height: 1.6; margin: 0;
+  }
+  .mg-fg { color: var(--accent); }
+  .mg-fl { color: #c62828; }
+  .mg-fm { color: #d84315; }
+  [data-theme="dark"] .mg-fl { color: #ef9a9a; }
+  [data-theme="dark"] .mg-fm { color: #ffab91; }
+  </style>
 </head>
 
 <body>
@@ -271,6 +384,10 @@
               <h4>Near-real-time selective logging detection</h4>
               <p>Detection of selective logging from Sentinel-1 radar (SAR) imagery.</p>
             </li>
+            <li>
+              <h4>Mangrove Change Detection – Western Region, Ghana</h4>
+              <p>Mapped mangrove land cover for 2015 and 2025 using Harmonized Landsat-Sentinel (HLS) imagery and identified potential restoration areas. Mangrove cover increased from 5,088 ha to 7,241 ha, with 2,340 ha of lost cover flagged as restoration targets.</p>
+            </li>
           </ul>
         </div>
 
@@ -298,6 +415,10 @@
               <img src="assets/img/map-micro-habitat.webp" width="1286" height="910" loading="lazy" alt="Map of bird micro-habitat points on the Legon campus">
               <span>Bird micro-habitats, Legon campus</span>
             </a>
+            <div class="mc-tile" role="button" tabindex="0" aria-haspopup="dialog" id="mc-trigger">
+              <img src="assets/img/mangrove-change.jpg" width="1600" height="1130" loading="lazy" alt="Mangrove change detection map, Western Region, Ghana, 2015–2025">
+              <span>Mangrove land cover and change, Western Region, 2015–2025</span>
+            </div>
           </div>
         </div>
       </div>
@@ -558,6 +679,144 @@
       <figcaption></figcaption>
     </figure>
   </dialog>
+
+  <dialog id="mg-dialog" class="mg-dialog" aria-label="Mangrove change detection viewer">
+    <div class="mg-dhead">
+      <div>
+        <h2 class="mg-dtitle">Mangrove Change Detection · Western Region, Ghana</h2>
+        <p class="mg-dsub">HLS imagery · 2015 – 2025</p>
+      </div>
+      <button class="mg-dclose" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+      </button>
+    </div>
+    <div class="mg-tabs" role="tablist">
+      <button class="mg-tab" role="tab" aria-selected="false" data-panel="lulc2015">LULC 2015</button>
+      <button class="mg-tab" role="tab" aria-selected="true"  data-panel="lulc2025">LULC 2025</button>
+      <button class="mg-tab" role="tab" aria-selected="false" data-panel="change">Mangrove Change</button>
+      <button class="mg-tab" role="tab" aria-selected="false" data-panel="restoration">Restoration</button>
+      <button class="mg-tab mg-tab-sep" role="tab" aria-selected="false" data-panel="findings">Key Findings</button>
+    </div>
+    <div class="mg-body">
+      <div class="mg-panel" id="mg-p-lulc2015">
+        <div class="mg-map-wrap"><img src="assets/img/mangrove-lulc-2015.jpg" alt="Land use and land cover, Western Region, Ghana, 2015" loading="lazy"></div>
+        <p class="mg-mcap">Land use and land cover · Western Region, Ghana · 2015 · Harmonized Landsat-Sentinel (HLS) imagery</p>
+      </div>
+      <div class="mg-panel active" id="mg-p-lulc2025">
+        <div class="mg-map-wrap"><img src="assets/img/mangrove-lulc-2025.jpg" alt="Land use and land cover, Western Region, Ghana, 2025" loading="lazy"></div>
+        <p class="mg-mcap">Land use and land cover · Western Region, Ghana · 2025 · Harmonized Landsat-Sentinel (HLS) imagery</p>
+      </div>
+      <div class="mg-panel" id="mg-p-change">
+        <div class="mg-map-wrap"><img src="assets/img/mangrove-change.jpg" alt="Mangrove distribution and change, Western Region, Ghana, 2015–2025" loading="lazy"></div>
+        <p class="mg-mcap">Mangrove distribution and change · 2015–2025 · net gain +2,153 ha across the Western Region coastline</p>
+      </div>
+      <div class="mg-panel" id="mg-p-restoration">
+        <div class="mg-map-wrap"><img src="assets/img/mangrove-restoration.jpg" alt="Potential mangrove restoration areas, Western Region, Ghana" loading="lazy"></div>
+        <p class="mg-mcap">Potential restoration areas · 2,341 ha of lost mangrove cover flagged as priority restoration targets</p>
+      </div>
+      <div class="mg-panel" id="mg-p-findings">
+        <div class="mg-findings">
+          <div class="mg-kpi-grid">
+            <div class="mg-kpi">
+              <div class="mg-kpi-label">Net mangrove change</div>
+              <div class="mg-kpi-val mg-fg">+42.3%</div>
+              <div class="mg-kpi-sub">50.9 → 72.4 km² · net +2,153 ha</div>
+            </div>
+            <div class="mg-kpi">
+              <div class="mg-kpi-label">New growth</div>
+              <div class="mg-kpi-val mg-fg">+4,494 ha</div>
+              <div class="mg-kpi-sub">gained over ten years</div>
+            </div>
+            <div class="mg-kpi">
+              <div class="mg-kpi-label">Restoration potential</div>
+              <div class="mg-kpi-val mg-fl">2,341 ha</div>
+              <div class="mg-kpi-sub">lost cover · 46% of 2015 extent</div>
+            </div>
+            <div class="mg-kpi">
+              <div class="mg-kpi-label">Mining surge</div>
+              <div class="mg-kpi-val mg-fm">+953%</div>
+              <div class="mg-kpi-sub">3.6 → 37.7 km² · tenfold in 10 years</div>
+            </div>
+          </div>
+          <div class="mg-cols">
+            <div class="mg-card">
+              <h3>Major land cover shifts</h3>
+              <table class="mg-table">
+                <thead><tr><th>Class</th><th>Change 2015–2025</th></tr></thead>
+                <tbody>
+                  <tr><td>Agriculture</td>   <td class="mg-fg">+36.0%</td></tr>
+                  <tr><td>Open Forest</td>   <td class="mg-fg">+25.2%</td></tr>
+                  <tr><td>Built-Up</td>      <td class="mg-fg">+18.6%</td></tr>
+                  <tr><td>Wetland</td>       <td class="mg-fl">−9.1%</td></tr>
+                  <tr><td>Closed Forest</td> <td class="mg-fl">−27.3%</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="mg-card">
+              <h3>Priority restoration areas</h3>
+              <ul class="mg-spots">
+                <li class="mg-spot">
+                  <span class="mg-dot"></span>
+                  <span>
+                    <span class="mg-sname">Jomoro District</span>
+                    <span class="mg-sdesc">Largest cluster — Tikobo No. 1, Nawule, Allowule, Kengen, Eleyin</span>
+                  </span>
+                </li>
+                <li class="mg-spot">
+                  <span class="mg-dot"></span>
+                  <span>
+                    <span class="mg-sname">Coastal fringe</span>
+                    <span class="mg-sdesc">Fragmented patches with active regeneration adjacent to stable mangrove</span>
+                  </span>
+                </li>
+                <li class="mg-spot">
+                  <span class="mg-dot"></span>
+                  <span>
+                    <span class="mg-sname">Mining-adjacent zones</span>
+                    <span class="mg-sdesc">Wetland displaced by artisanal mining expansion (3.6 → 37.7 km²)</span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <p class="mg-takeaway">Mangrove cover expanded by 42% over the decade despite significant forest loss and a tenfold increase in artisanal mining. The 2,341 ha of lost cover represent the highest-priority sites for restoration, particularly in Jomoro District.</p>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+  (function () {
+    var dlg = document.getElementById('mg-dialog');
+    if (!dlg || typeof dlg.showModal !== 'function') return;
+    var panels = dlg.querySelectorAll('.mg-panel');
+    var tabs   = dlg.querySelectorAll('.mg-tab');
+
+    function switchPanel(name) {
+      panels.forEach(function (p) { p.classList.remove('active'); });
+      tabs.forEach(function (t) { t.setAttribute('aria-selected', 'false'); });
+      var p = dlg.querySelector('#mg-p-' + name);
+      if (p) p.classList.add('active');
+      var t = dlg.querySelector('[data-panel="' + name + '"]');
+      if (t) t.setAttribute('aria-selected', 'true');
+    }
+
+    var trigger = document.getElementById('mc-trigger');
+    if (trigger) {
+      trigger.addEventListener('click', function () { switchPanel('lulc2025'); dlg.showModal(); });
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchPanel('lulc2025'); dlg.showModal(); }
+      });
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () { switchPanel(tab.dataset.panel); });
+    });
+
+    dlg.querySelector('.mg-dclose').addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  })();
+  </script>
 
   <!-- Visitor statistics (GoatCounter, no cookies). Dashboard: https://marvportfolio.goatcounter.com -->
   <script data-goatcounter="https://marvportfolio.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
